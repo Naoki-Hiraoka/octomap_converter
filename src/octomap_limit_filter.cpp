@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include <octomap_msgs/Octomap.h>
 #include <octomap_msgs/conversions.h>
+#include <octomap_ros/conversions.h>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
@@ -25,16 +26,16 @@ protected:
     for(typename T::leaf_iterator it = octree->begin_leafs(),
           end=octree->end_leafs(); it!= end; ++it){
       // check if outside of bbx:
-      octomap::OcTreeKey k = it.getKey();
-      if  (k[0] < min.x() || k[1] < min.y() || k[2] < min.z()
-           || k[0] > max.x() || k[1] > max.y() || k[2] > max.z()){
-        toRemove.push_back(std::make_pair(k, it.getDepth()));
+      if  (it.getX() < min.x() || it.getY() < min.y() || it.getZ() < min.z()
+           || it.getX() > max.x() || it.getY() > max.y() || it.getZ() > max.z()){
+        toRemove.push_back(std::make_pair(it.getKey(), it.getDepth()));
       }
     }
 
     for(int i=0;i<toRemove.size();i++){
       octree->deleteNode(toRemove[i].first, toRemove[i].second);
     }
+    octree->prune();
   }
 
   void octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg) {
@@ -52,24 +53,28 @@ protected:
         ROS_ERROR_STREAM(ex.what());
       }
     }
-    octomap::point3d min(center.x - this->radius_,
-                         center.y - this->radius_,
-                         center.z - this->radius_);
-    octomap::point3d max(center.x + this->radius_,
-                         center.y + this->radius_,
-                         center.z + this->radius_);
+    geometry_msgs::Point min;
+    min.x = center.x - this->radius_;
+    min.y = center.y - this->radius_;
+    min.z = center.z - this->radius_;
+    geometry_msgs::Point max;
+    max.x = center.x + this->radius_;
+    max.y = center.y + this->radius_;
+    max.z = center.z + this->radius_;
 
     if(octree){
-      this->applyLimitFilter<octomap::OcTree>(octree, min, max);
+      this->applyLimitFilter<octomap::OcTree>(octree, octomap::pointMsgToOctomap(min), octomap::pointMsgToOctomap(max));
       octomap_msgs::Octomap msgOut;
       if(msg->binary) octomap_msgs::binaryMapToMsg<octomap::OcTree>(*octree, msgOut);
       else octomap_msgs::fullMapToMsg<octomap::OcTree>(*octree, msgOut);
+      msgOut.header = msg->header;
       this->octomapPub_.publish(msgOut);
     }else if(coloroctree){
-      this->applyLimitFilter<octomap::ColorOcTree>(coloroctree, min, max);
+      this->applyLimitFilter<octomap::ColorOcTree>(coloroctree, octomap::pointMsgToOctomap(min), octomap::pointMsgToOctomap(max));
       octomap_msgs::Octomap msgOut;
       if(msg->binary) octomap_msgs::binaryMapToMsg<octomap::ColorOcTree>(*coloroctree, msgOut);
       else octomap_msgs::fullMapToMsg<octomap::ColorOcTree>(*coloroctree, msgOut);
+      msgOut.header = msg->header;
       this->octomapPub_.publish(msgOut);
     }
   }
