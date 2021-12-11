@@ -13,7 +13,7 @@ public:
     octomapSub_ = pnh.subscribe("input", 1, &octomap_frame_converter::octomapCallback, this);
     octomapPub_ = pnh.advertise<octomap_msgs::OctomapWithPose>("output",10);
 
-    pnh.param<std::string>("target_frame", targetFrame_, "/odom");
+    pnh.param<std::string>("target_frame", targetFrame_, "odom");
   }
 
 protected:

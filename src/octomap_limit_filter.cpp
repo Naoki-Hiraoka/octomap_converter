@@ -41,8 +41,6 @@ protected:
   void octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg) {
     std::shared_ptr<octomap::AbstractOcTree> absoctree = std::shared_ptr<octomap::AbstractOcTree>(octomap_msgs::msgToMap(*msg));
     if(!absoctree) return;
-        std::shared_ptr<octomap::OcTree> octree = std::dynamic_pointer_cast<octomap::OcTree>(absoctree);
-        std::shared_ptr<octomap::ColorOcTree> coloroctree = std::dynamic_pointer_cast<octomap::ColorOcTree>(absoctree);
 
     geometry_msgs::Vector3 center; center.x = 0; center.y = 0; center.z = 0;
     if(this->centerFrame_ != "" && this->centerFrame_ != msg->header.frame_id){
@@ -62,20 +60,26 @@ protected:
     max.y = center.y + this->radius_;
     max.z = center.z + this->radius_;
 
-    if(octree){
-      this->applyLimitFilter<octomap::OcTree>(octree, octomap::pointMsgToOctomap(min), octomap::pointMsgToOctomap(max));
-      octomap_msgs::Octomap msgOut;
-      if(msg->binary) octomap_msgs::binaryMapToMsg<octomap::OcTree>(*octree, msgOut);
-      else octomap_msgs::fullMapToMsg<octomap::OcTree>(*octree, msgOut);
-      msgOut.header = msg->header;
-      this->octomapPub_.publish(msgOut);
-    }else if(coloroctree){
-      this->applyLimitFilter<octomap::ColorOcTree>(coloroctree, octomap::pointMsgToOctomap(min), octomap::pointMsgToOctomap(max));
-      octomap_msgs::Octomap msgOut;
-      if(msg->binary) octomap_msgs::binaryMapToMsg<octomap::ColorOcTree>(*coloroctree, msgOut);
-      else octomap_msgs::fullMapToMsg<octomap::ColorOcTree>(*coloroctree, msgOut);
-      msgOut.header = msg->header;
-      this->octomapPub_.publish(msgOut);
+    if(msg->id == "OcTree"){
+      std::shared_ptr<octomap::OcTree> octree = std::dynamic_pointer_cast<octomap::OcTree>(absoctree);
+      if(octree){
+        this->applyLimitFilter<octomap::OcTree>(octree, octomap::pointMsgToOctomap(min), octomap::pointMsgToOctomap(max));
+        octomap_msgs::Octomap msgOut;
+        if(msg->binary) octomap_msgs::binaryMapToMsg<octomap::OcTree>(*octree, msgOut);
+        else octomap_msgs::fullMapToMsg<octomap::OcTree>(*octree, msgOut);
+        msgOut.header = msg->header;
+        this->octomapPub_.publish(msgOut);
+      }
+    }else if(msg->id == "ColorOcTree"){
+      std::shared_ptr<octomap::ColorOcTree> coloroctree = std::dynamic_pointer_cast<octomap::ColorOcTree>(absoctree);
+      if(coloroctree){
+        this->applyLimitFilter<octomap::ColorOcTree>(coloroctree, octomap::pointMsgToOctomap(min), octomap::pointMsgToOctomap(max));
+        octomap_msgs::Octomap msgOut;
+        if(msg->binary) octomap_msgs::binaryMapToMsg<octomap::ColorOcTree>(*coloroctree, msgOut);
+        else octomap_msgs::fullMapToMsg<octomap::ColorOcTree>(*coloroctree, msgOut);
+        msgOut.header = msg->header;
+        this->octomapPub_.publish(msgOut);
+      }
     }
   }
 
