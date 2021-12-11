@@ -30,10 +30,13 @@ include_directories(
 add_executable(octomap_limit_filter src/octomap_limit_filter.cpp)
 target_link_libraries(octomap_limit_filter ${catkin_LIBRARIES})
 
+add_executable(octomap_frame_converter src/octomap_frame_converter.cpp)
+target_link_libraries(octomap_frame_converter ${catkin_LIBRARIES})
+
 #############
 ## Install ##
 #############
 
-install(TARGETS octomap_limit_filter
+install(TARGETS octomap_limit_filter octomap_frame_converter
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
