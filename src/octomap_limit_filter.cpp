@@ -81,6 +81,8 @@ protected:
         this->octomapPub_.publish(msgOut);
       }
     }
+
+    absoctree->clear(); // destructor of OcTree does not free memory for internal data.
   }
 
   ros::Subscriber octomapSub_;
