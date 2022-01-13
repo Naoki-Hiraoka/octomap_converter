@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   octomap_msgs
   octomap_ros
   tf2_ros
+  nav_msgs
   )
 
 catkin_package(
@@ -32,6 +33,9 @@ target_link_libraries(octomap_limit_filter ${catkin_LIBRARIES})
 
 add_executable(octomap_frame_converter src/octomap_frame_converter.cpp)
 target_link_libraries(octomap_frame_converter ${catkin_LIBRARIES})
+
+add_executable(octomap_to_occupancygrid src/octomap_to_occupancygrid.cpp)
+target_link_libraries(octomap_to_occupancygrid ${catkin_LIBRARIES})
 
 #############
 ## Install ##

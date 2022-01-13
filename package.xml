@@ -13,5 +13,6 @@
   <depend>octmap_msgs</depend>
   <depend>octmap_ros</depend>
   <depend>roscpp</depend>
+  <depend>nav_msgs</depend>
 
 </package>
