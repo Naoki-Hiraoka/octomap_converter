@@ -26,28 +26,20 @@ protected:
     octomap::OcTreeNode* node = octree->search(key);
     if(!node) return 0;
     if(!octree->isNodeOccupied(node)) return 0;
-    
+
     hasArrived[key] = 0;
     currentGroup[key] = 0;
     int size = 1;
 
-    // https://github.com/OctoMap/octomap/issues/42
-    std::vector<std::vector<double> > idx{
-      std::vector<double>{-1,0,0},
-      std::vector<double>{1,0,0},
-      std::vector<double>{0,-1,0},
-      std::vector<double>{-1,0,0},
-	std::vector<double>{-1,0,0}};
-	
     for(int x=-1;x<=1;x+=2){
       for(int y=-1;y<=1;y+=2){
-	for(int z=-1;z<=1;z+=2){
-	  octomap::OcTreeKey neighborKey = key;
-	  neighborKey[0]+=x;
-	  neighborKey[1]+=y;
-	  neighborKey[2]+=z;
-	  size += this->calcSize(neighborKey,octree,hasArrived,currentGroup);
-	}
+        for(int z=-1;z<=1;z+=2){
+          octomap::OcTreeKey neighborKey = key;
+          neighborKey[0]+=x;
+          neighborKey[1]+=y;
+          neighborKey[2]+=z;
+          size += this->calcSize(neighborKey,octree,hasArrived,currentGroup);
+        }
       }
     }
 
@@ -64,9 +56,9 @@ protected:
       std::unordered_map<octomap::OcTreeKey,unsigned int,octomap::OcTreeKey::KeyHash> currentGroup;
       int size = this->calcSize(it.getKey(),octree,hasArrived,currentGroup);
       if(size <= this->size_) {
-	for(std::unordered_map<octomap::OcTreeKey,unsigned int,octomap::OcTreeKey::KeyHash>::iterator it = currentGroup.begin(); it != currentGroup.end(); it++){
-	  toRemove[it->first] = it->second;
-	}
+        for(std::unordered_map<octomap::OcTreeKey,unsigned int,octomap::OcTreeKey::KeyHash>::iterator it = currentGroup.begin(); it != currentGroup.end(); it++){
+          toRemove[it->first] = it->second;
+        }
       }
     }
     for(std::unordered_map<octomap::OcTreeKey,unsigned int,octomap::OcTreeKey::KeyHash>::iterator it = toRemove.begin(); it != toRemove.end(); it++){
