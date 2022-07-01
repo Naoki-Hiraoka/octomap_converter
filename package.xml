@@ -10,8 +10,8 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <depend>octmap_msgs</depend>
-  <depend>octmap_ros</depend>
+  <depend>octomap_msgs</depend>
+  <depend>octomap_ros</depend>
   <depend>roscpp</depend>
   <depend>nav_msgs</depend>
 
